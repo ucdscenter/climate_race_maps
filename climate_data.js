@@ -11,15 +11,13 @@ async function wrapper(){
 
 	var county_geojson = await d3.json("data/gz_2010_us_050_00_500k.json")
 	var climate_counties = await d3.csv('data/JK2014-County-results.csv')
-	var georgia_race_counties = await d3.csv('data/georgia_counties_t/ACSDP5Y2014.DP05_data_with_overlays_2020-02-11T112630.csv')
-	var georgia_counties_header = await d3.csv('data/georgia_counties_t/ACSDP5Y2014.DP05_metadata_2020-02-11T112630.csv')
+	var georgia_race_counties = await d3.csv(race_data_path)
+	var georgia_counties_header = await d3.csv(race_header_path)
 
-
-	console.log(georgia_counties_header)
 	$('#loading-div').addClass("hidden")
 
 	climate_counties = climate_counties.filter(function(d){
-		if (d.State == 'GA'){
+		if (d.State == stateInitials){
 			return true
 		}
 		return false
@@ -27,7 +25,7 @@ async function wrapper(){
 
 
 	county_geojson["features"] = county_geojson.features.filter(function(d){
-		if(d.properties.STATE == "13"){
+		if(d.properties.STATE == stateIndex){
 			//d.properties.co2 = 
 			//console.log(d.properties.NAME.toLowerCase())
 			climate_counties.forEach(function(c){
@@ -65,15 +63,11 @@ async function wrapper(){
 		console.log(geoobj)
 
 		var colExt = d3.extent(geoobj.features.map(function(x){if(x.properties[dataset] != undefined){
-				return parseFloat(x.properties[dataset][column].trim())}
+				return parseFloat(x.properties[dataset][column].trim().replace(/,/g,''))}
 		}))
-		let stdev = d3.deviation(geoobj.features.map(function(x) { if(x.properties[dataset] != undefined){
-				return x.properties[dataset][column]}}))
-		let mean = d3.mean(geoobj.features.map(function(x) { if(x.properties[dataset] != undefined){
-				return x.properties[dataset][column]}}))
-		let stdevMax = d3.max(geoobj.features, function(x){ if(x.properties[dataset] != undefined){
-				return Math.abs((x.properties[dataset][column] - mean) / stdev)}})
-		let stdevColorRange = d3.scaleLinear().domain([-stdevMax, stdevMax]).range([1,0])
+		
+		console.log(colExt)
+		let stdevColorRange = d3.scaleLinear().domain(colExt).range([0,1])
 		let thingmap = {}
 		function style(d){
 			return {fillColor: getColor(d.properties[dataset]),
@@ -82,26 +76,32 @@ async function wrapper(){
 	        	color: 'white',
 	        	fillOpacity: 0.9,
 	        	className: d.properties.NAME
-			}}	
+			}}
+
 		let colorInterpolator = d3.interpolatePurples
 		if (dataset != 'co2obj'){
 			colorInterpolator = d3.interpolateOranges
 		}
-		function getColor(d, legend=false) {
-			
+		function getColor(d, legend=false) {	
 			if (d == undefined){ return '#d3d3d3'}
 			else if(legend){
-				return colorInterpolator(1 - (stdevColorRange((d - mean) / stdev)))
+				//return colorInterpolator(1 - (stdevColorRange((d - mean) / stdev)))
+				return colorInterpolator(stdevColorRange(d))
 			}
 			else{
-				return colorInterpolator(1 - (stdevColorRange((d[column] - mean) / stdev)))
+				//return colorInterpolator(1 - (stdevColorRange((d[column] - mean) / stdev)))
+				//console.log(typeof(d[column]))
+				
+				let cleanedD = parseFloat(d[column].trim().replace(/,/g,''))
+				return colorInterpolator(stdevColorRange(cleanedD))
 			}
 		}
+
 		d3.select('#'+ id +'-div').style("height", '600px')
-		var map = L.map(id).setView([32.8, -83], 7.4);
+		var map = L.map(id).setView(viewloc, viewz);
 		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
 		    id: 'mapbox/light-v9',
-		    attribution: "Map from: <a href='https://eric.clst.org/tech/usgeojson/'>EricTech</a>, Data from: Stamford, <a href='https://www.census.gov/data.html'>us census data</a>", 
+		    attribution: "Map from: <a href='https://eric.clst.org/tech/usgeojson/'>EricTech</a>, Data from: Stamford, <a href='https://data.census.gov/cedsci/table?q=Ohio%20Race%20and%20Ethnicity&tid=ACSDP1Y2018.DP05&t=Race%20and%20Ethnicity&hidePreview=true&layer=state&tp=false&g=0400000US39'>us census data</a>", 
 		    tileSize: 512,
 		    zoomOffset: -1
 		}).addTo(map);
@@ -120,7 +120,6 @@ async function wrapper(){
 		    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
 		        layer.bringToFront();
 		    }
-		    console.log(e.target.feature.properties.NAME)
 		    $('.' + e.target.feature.properties.NAME).trigger("mouseover")
 		   d3.selectAll('.' + e.target.feature.properties.NAME).style("stroke-width", 2).style("stroke", '#666').style("opacity", .9).moveToFront()
 
@@ -138,9 +137,6 @@ async function wrapper(){
 		}
 
 		function onEachFeature(feature, layer) {
-
-			console.log(feature)
-			console.log(layer)
     		layer.on({
         		mouseover: highlightFeature,
         		mouseout: resetHighlight,
@@ -165,15 +161,18 @@ async function wrapper(){
 		*/
 		//info.addTo(map);
 
+		let co2_label = co2_column.split('(')[1].split(')')[0]
+		console.log(co2_label)
+
 		
 		let georgia = L.geoJson(geoobj, {style: style, onEachFeature: onEachFeature})
 						.bindTooltip(function (layer) {
 							var value
 							if(dataset == 'raceobj'){
-								value = layer.feature.properties.raceobj[column] + "% white || " + layer.feature.properties.co2obj[co2_column] + "tc02e"
+								value = layer.feature.properties.raceobj[column] + "% white || " + layer.feature.properties.co2obj[co2_column] + co2_label
 							}
 							else{
-								value = layer.feature.properties.raceobj[white_column] + "% white || " + layer.feature.properties.co2obj[column] + "tc02e"
+								value = layer.feature.properties.raceobj[white_column] + "% white || " + layer.feature.properties.co2obj[column] + co2_label
 							}
     						return layer.feature.properties.NAME + ": " + value;
 						})
@@ -192,8 +191,8 @@ async function wrapper(){
     	var grades = [];
         var	labels = [];
 
-        var dformat = d3.format('.2n')
-        var stylstr = ' co2e'
+        var dformat = d3.format('.3n')
+        var stylstr = co2_label
         if(dataset == 'raceobj'){
         	stylstr = '%'
         }	
@@ -206,7 +205,7 @@ async function wrapper(){
     	for (var i = 0; i < grades.length; i++) {
         	div.innerHTML +=
         	'	<i style="background:' + getColor(grades[i] + 1, legend=true) + '"></i> ' +
-        	dformat(grades[i]) + stylstr + '<br>'
+        	dformat(grades[i]) +' '+  stylstr + '<br>'
     	}
 
     	return div;
@@ -221,12 +220,43 @@ async function wrapper(){
 		return map;
 	}//doMap
 
+rmCols = ['Population', 'State', 'County', ' Households ']
+Object.keys(climate_counties[0]).forEach(function(d){
+	var included = true
+	rmCols.forEach(function(rm){
+		if( d == rm){
+			included = false
+		}
+	})
+	if (included){
+		d3.select("#co2-col-select").append("option").attr("value", d).text(d)
+	}
+})
 
-	
 let co2_column = " Total Household Carbon Footprint (tCO2e/yr) "
-let white_column = "DP05_0032PE"
-doMap('map-1', 'co2obj', co2_column, county_geojson)
-doMap('map-2', 'raceobj', white_column, county_geojson)
+
+d3.select('#co2-col-select').on("change", function(d){
+	co2_column = d3.select(this).property('value')
+	renderMaps()
+});
+
+$('#co2-col-select')
+    .val(co2_column)
+    .trigger('change');
+renderMaps()
+	
+function renderMaps(){
+	d3.select('#map-1').remove()
+	d3.select('#map-2').remove()
+	d3.select('#map-1-label').text(co2_column)
+	d3.select('#map-1-div').append("div").attr("id", 'map-1')
+	d3.select('#map-2-div').append("div").attr("id", 'map-2')
+
+	doMap('map-1', 'co2obj', co2_column, county_geojson)
+	doMap('map-2', 'raceobj', white_column, county_geojson)
+}
+
+
 
 let  lpaths = d3.selectAll(".leaflet-interactive")
 	

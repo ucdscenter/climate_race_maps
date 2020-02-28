@@ -47,14 +47,25 @@
 
 		<div class="row">
 
-			<div class="col-12" align="center">
-				<h1>Georgia Climate-Race Exploratory Vis</h1>
+			<div class="col-12" >
+				<h1 align="center">Georgia Climate-Race Exploratory Vis</h1>
 				<div class="row">
-					<div class="col-12 hidden" id="loading-div">
-						<img src="/static/climate_maps/big-ajax-loader.gif">
+					<div class="col-12 hidden" id="loading-div" align="center">
+						<img src="big-ajax-loader.gif">
+					</div>
+					<div class="col-12">
 					</div>
 					<div class="col-6" id="map-1-div">
-						<h3 id="map-1-label"></h3>
+						<div class="row">
+							<div class="col-8">
+								<h5 id="map-1-label"></h5>
+							</div>
+							<div class="col-4" >
+								<select class="form-control" id="co2-col-select" align="left" style="height: 30px">
+								</select>
+							</div>
+						</div>
+					
 						<div id="map-1">
 							
 						</div>
@@ -62,7 +73,14 @@
 					</div>
 
 					<div class="col-6" id="map-2-div">
-						<h3 id="map-2-label"></h3>
+						<div class="row">
+							<div class="col-8">
+								<h5 id="map-2-label"></h5>
+							</div>
+							<div class="col-4">
+						
+							</div>
+						</div>
 						<div id="map-2">
 							
 						</div>
@@ -73,7 +91,6 @@
 			</div>
 		</div>
 	</div>
-<svg id='viz'></svg>
 </body>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -85,5 +102,13 @@
 <script src="src/leaflet/leaflet.js"></script>
 	<script type="text/javascript" src="http://d3js.org/queue.v1.min.js"></script>
 	<script type="text/javascript" src="http://d3js.org/topojson.v1.min.js"></script> 
-
+<script>
+	const stateIndex = '13'
+	const stateInitials = 'GA'
+	const race_data_path = 'data/georgia_counties_t/ACSDP5Y2014.DP05_data_with_overlays_2020-02-11T112630.csv'
+	const race_header_path = 'data/georgia_counties_t/ACSDP5Y2014.DP05_metadata_2020-02-11T112630.csv'
+	const viewloc = [32.8, -83]
+	const viewz = 7.4
+	const white_column = "DP05_0032PE"
+</script>
 <script src='climate_data.js'></script>
