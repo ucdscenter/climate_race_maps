@@ -1,0 +1,42 @@
+
+
+Grand co2 data of transportation mapping data:
+https://daac.ornl.gov/cgi-bin/dsviewer.pl?ds_id=1735
+
+https://www.nytimes.com/interactive/2019/10/10/climate/driving-emissions-map.html
+
+penn mapping with race?
+https://web.sas.upenn.edu/sociospatialclimate/wccm/
+
+nasa username:
+EzraEdgerton
+pw:
+high school one
+
+
+arcgis username (21 day acct):
+EzraEdgerton:
+pw:
+hight school one!
+
+berkeley data:
+https://pubs.acs.org/doi/abs/10.1021/es4034364
+
+https://www.dropbox.com/s/xqfduksgt6cmema/Jones-Kammen-2014-Zip-City-County-Results.xlsx?dl=0
+
+kind of looks like its only one year, but I'll read the paper.
+
+Google project combining berkeley data with census data. Definitely worth a look
+
+https://rael.berkeley.edu/2019/01/new-article-on-the-racial-disparities-in-installed-rooftop-solar-in-the-us/
+
+
+
+CENSUS DATA:
+https://data.census.gov/cedsci/profile?q=United%20States&tid=ACSDP1Y2018.DP05&g=0100000US
+
+MAPPING RESOURCES:
+with d3
+https://medium.com/@mbostock/command-line-cartography-part-1-897aa8f8ca2c
+
+https://github.com/OpenDataDE/State-zip-code-GeoJSON
