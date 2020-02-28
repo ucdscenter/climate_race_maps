@@ -101,7 +101,7 @@ async function wrapper(){
 		var map = L.map(id).setView(viewloc, viewz);
 		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
 		    id: 'mapbox/light-v9',
-		    attribution: "Map from: <a href='https://eric.clst.org/tech/usgeojson/'>EricTech</a>, Data from: Stamford, <a href='https://data.census.gov/cedsci/table?q=Ohio%20Race%20and%20Ethnicity&tid=ACSDP1Y2018.DP05&t=Race%20and%20Ethnicity&hidePreview=true&layer=state&tp=false&g=0400000US39'>us census data</a>", 
+		    attribution: "Map from: <a href='https://eric.clst.org/tech/usgeojson/'>EricTech</a>, Data from: Stamford, <a href='https://data.census.gov/cedsci/table?q=Ohio%20Race%20and%20Ethnicity&tid=ACSDP1Y2018.DP05&t=Race%20and%20Ethnicity&hidePreview=true&layer=state&tp=false&g=0400000US39'>us census data</a>, race percentages based on ACS 2014 5 year estimates.", 
 		    tileSize: 512,
 		    zoomOffset: -1
 		}).addTo(map);
@@ -145,22 +145,7 @@ async function wrapper(){
     		layer.county = feature.properties.NAME
 		}
 
-		/*
-		var info = L.control();
-
-		info.onAdd = function (map) {
-		    this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
-		    this.update();
-		    return this._div;
-		};
-		info.update = function (props) {
-		    this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-		        '<b>' + props.name + '</b><br />' + props.density + ' people / mi<sup>2</sup>'
-		        : 'Hover over a state');
-		};
-		*/
-		//info.addTo(map);
-
+		
 		let co2_label = co2_column.split('(')[1].split(')')[0]
 		console.log(co2_label)
 
