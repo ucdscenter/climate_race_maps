@@ -86,7 +86,7 @@ async function wrapper(){
 	        	weight: 1,
 	        	opacity: 1,
 	        	color: 'white',
-	        	fillOpacity: 0.9,
+	        	fillOpacity: 0.7,
 	        	className: 'z' + d.properties.ZCTA5CE10
 			}}
 
@@ -135,13 +135,13 @@ async function wrapper(){
 		        layer.bringToFront();
 		    }
 		    $('.z' + e.target.feature.properties.ZCTA5CE10).trigger("mouseover")
-		   d3.selectAll('.z' + e.target.feature.properties.ZCTA5CE10).style("stroke-width", 2).style("stroke", '#666').style("opacity", .9).moveToFront()
+		   d3.selectAll('.z' + e.target.feature.properties.ZCTA5CE10).style("stroke-width", 1).style("stroke", 'black').style("opacity", .9).moveToFront()
 
 		    //info.update(layer.feature.properties);
 		}
 
 		function resetHighlight(e) {
-			d3.selectAll('.z' + e.target.feature.properties.ZCTA5CE10).style("stroke-width", 2).style("stroke", 'white').style("opacity", .9)
+			d3.selectAll('.z' + e.target.feature.properties.ZCTA5CE10).style("stroke-width", 1).style("stroke", 'white').style("opacity", .9)
     		//georgia.resetStyle(e.target);
     		//info.update();
 		}
@@ -222,10 +222,10 @@ async function wrapper(){
 
 		legend.addTo(map);
 			
-		map.dragging.disable();
+		/*map.dragging.disable();
 		map.touchZoom.disable();
 		map.doubleClickZoom.disable();
-		map.scrollWheelZoom.disable();
+		map.scrollWheelZoom.disable();*/
 		return map;
 	}//doMap
 
