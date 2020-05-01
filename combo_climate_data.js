@@ -58,21 +58,23 @@ async function wrapper(){
 
 
 	function doLabels(id, dataset, column){
-			if (dataset == ''){
-				georgia_counties_header.forEach(function(c){
-					if (column == c.GEO_ID){
-						//d3.select("#" + id + "-label").text(c.id)
-						d3.select('#' + id + "-label").text("% of white population") 
-					}
-				})
-			}
-			else{
-				d3.select("#" + id + "-label").text(column)
-			}
+		if (dataset == ''){
+			georgia_counties_header.forEach(function(c){
+				if (column == c.GEO_ID){
+					//d3.select("#" + id + "-label").text(c.id)
+					d3.select('#' + id + "-label").text("% of white population") 
+				}
+			})
 		}
-	function doMap(id, dataset, column, geoobj){
+		else{
+			d3.select("#" + id + "-label").text(column)
+		}
+	}
+
+	function doMap(id, dataset, column, geoobj, map){
 		doLabels(id, dataset, column)
 		console.log(geoobj)
+		console.log(map)
 
 		var colExt = d3.extent(geoobj.features.map(function(x){if(x.properties[dataset] != undefined){
 				return parseFloat(x.properties[dataset][column].trim().replace(/,/g,''))}
@@ -98,8 +100,6 @@ async function wrapper(){
 			if (d == undefined){ return '#d3d3d3'}
 			else if(legend){
 				//return colorInterpolator(1 - (stdevColorRange((d - mean) / stdev)))
-				console.log(d)
-				console.log(dataset)
 				return colorInterpolator(stdevColorRange(d))
 			}
 			else{
@@ -111,14 +111,7 @@ async function wrapper(){
 			}
 		}
 
-		d3.select('#'+ id +'-div').style("height", '600px')
-		var map = L.map(id).setView(viewloc, viewz);
-		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
-		    id: 'mapbox/light-v9',
-		    attribution: "Map from: <a href='https://eric.clst.org/tech/usgeojson/'>EricTech</a>, Data from: Stamford, <a href='https://data.census.gov/cedsci/table?q=Ohio%20Race%20and%20Ethnicity&tid=ACSDP1Y2018.DP05&t=Race%20and%20Ethnicity&hidePreview=true&layer=state&tp=false&g=0400000US39'>us census data</a>, race percentages based on ACS 2014 5 year estimates.", 
-		    tileSize: 512,
-		    zoomOffset: -1
-		}).addTo(map);
+
 
 
 
@@ -186,7 +179,7 @@ async function wrapper(){
 
 		legend.onAdd = function (map) {
 
-		var numBoxes = 7
+			var numBoxes = 6
 		console.log(colExt)
 		let diff = colExt[1] - colExt[0]
 		let interval = diff/numBoxes
@@ -255,14 +248,24 @@ $('#co2-col-select')
 renderMaps()
 	
 function renderMaps(){
+
+	d3.select('#'+ 'map-1' +'-div').style("height", window.innerHeight * .85)
+		var map = L.map('map-1').setView(viewloc, viewz);
+		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=' + mapboxAccessToken, {
+		    id: 'mapbox/light-v9',
+		    attribution: "Map from: <a href='https://eric.clst.org/tech/usgeojson/'>EricTech</a>, Data from: Stamford, <a href='https://data.census.gov/cedsci/table?q=Ohio%20Race%20and%20Ethnicity&tid=ACSDP1Y2018.DP05&t=Race%20and%20Ethnicity&hidePreview=true&layer=state&tp=false&g=0400000US39'>us census data</a>, race percentages based on ACS 2014 5 year estimates.", 
+		    tileSize: 512,
+		    zoomOffset: -1
+		}).addTo(map);
+
 	d3.select('#map-1').remove()
-	d3.select('#map-2').remove()
+	//d3.select('#map-2').remove()
 	d3.select('#map-1-label').text(co2_column)
 	d3.select('#map-1-div').append("div").attr("id", 'map-1')
-	d3.select('#map-2-div').append("div").attr("id", 'map-2')
+	//d3.select('#map-2-div').append("div").attr("id", 'map-2')
 
-	doMap('map-1', 'co2obj', co2_column, zipcode_geojson)
-	doMap('map-2', 'raceobj', white_column, zipcode_geojson)
+	doMap('map-1', 'co2obj', co2_column, zipcode_geojson, map)
+	//doMap('map-1', 'raceobj', white_column, zipcode_geojson)
 }
 	
 }
