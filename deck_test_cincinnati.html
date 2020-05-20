@@ -93,12 +93,14 @@ label {
 <div id="control-panel-race">
 	<p>Legend</p>
 	<p style="font-size: 10px; width: 150px">
-		Bar height is 1000*(% of zipcode population that is not white)
+		tCO2e/yr is Tons C02 emitted/year per household in each zipcode<br>
+    Bar height minimum is 10- <span id="min_val"></span> tC02e/yr<br>
+    Bar height maximum is 10000- <span id="max_val"></span> tC02e/yr
 	</p>
 	<hr>
 	<p>Colors</p>
 	<p style="font-size: 10px; width: 150px">
-		tCO2e/yr is Tons C02 emitted/year per household in each zipcode
+		 % of zipcode population that is not white
 	</p>
 	<div style="font-size: 10px" id="color-legend">
 		
@@ -225,8 +227,16 @@ var colExt = d3.extent(zipcode_geojson.features.map(function(x){if(x.properties[
 				return parseFloat(x.properties[dataset][column].trim().replace(/,/g,''))}
 		}))
 
+d3.select('#min_val').text(colExt[0])
+d3.select('#max_val').text(colExt[1])
+var raceExt = d3.extent(zipcode_geojson.features.map(function(x){
+  if (x.properties.raceobj != undefined){
+    return (1 - x.properties.raceobj.percent_white)
+}
+}))
+console.log(raceExt)
+let heightScale = d3.scaleLinear().domain(colExt).range([10, 10000])
 
-let heightScale = d3.scaleLinear().domain(colExt).range([500, 0])
 console.log(zipcode_geojson)
 
 
@@ -283,7 +293,8 @@ const zipshapegeojsonLayer = new deck.GeoJsonLayer({
   } ,
   lineWidthScale: 5,
   //getFillColor: f => [255, 255, 255],//colorScale(f.properties.raceobj.percent_white),
-  getFillColor: f => colorScale(parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim())/ colExt[1]),
+  getFillColor: f => colorScale(1 - f.properties.raceobj.percent_white),//colorScale(parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim())/ colExt[1]),
+
   getLineColor: f => [0, 0, 0],
 
   pickable: true
@@ -302,13 +313,14 @@ const zipcountgeojsonLayer = new deck.GeoJsonLayer({
   getElevation: function(f){
   	//console.log(f.properties.co2obj)
   	//console.log(f.properties.co2obj)
+    return heightScale(parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim()))
   	//console.log(heightScale(parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim())))
-  	return 10000 * (1 - f.properties.raceobj.percent_white)
+  	//return 10000 * (1 - f.properties.raceobj.percent_white)
   	//return (100 * 85.61) - (parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim()) * 100)
   	//return 10000
   } ,
   getRadius: 1000,
-  getFillColor: f => colorScale(parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim())/ colExt[1]),//colorScale(f.properties.raceobj.percent_white),
+  getFillColor: f => colorScale(1 - f.properties.raceobj.percent_white),//colorScale(parseFloat(f.properties.co2obj[" Total Household Carbon Footprint (tCO2e/yr) "].trim())/ colExt[1]),//colorScale(f.properties.raceobj.percent_white),
   getLineColor: f => [0, 0, 0],
 
   pickable: true
@@ -360,36 +372,36 @@ function renderColorLegend(){
   		return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 	}
 	var numBoxes = 9
-	console.log(colExt)
-	let diff = colExt[1] - colExt[0]
-	let interval = diff/numBoxes
-	
-	var grades = [];
-    var	labels = [];
+	console.log(raceExt)
+	  let diff = raceExt[1] - raceExt[0]
+  let interval = diff/numBoxes
+  
+  var grades = [];
+    var labels = [];
 
     
-    var stylstr = "tCO2e/yr"
+    var stylstr = "% nonwhite"
     var shittyfix = 0
     let tformat = dformat
     if(dataset == 'raceobj'){
-    	stylstr = '%'
-    	tformat = pformat
-    }	
+      stylstr = '%'
+      tformat = pformat
+    } 
     else {
-    	tformat = dformat
+      tformat = dformat
     }
 
     for(var i = 0; i < numBoxes + 1; i++){
-    	grades.push(colExt[0] + (interval * i))
+      grades.push(raceExt[0] + (interval * i))
     }
     var div = document.getElementById("color-legend")
-	// loop through our density intervals and generate a label with a colored square for each interval
-	for (var i = 0; i < grades.length; i++) {
-		let gradecolor = colorScale(parseFloat(grades[i])/ colExt[1])
-    	div.innerHTML +=
-    	'	<i style="background-color:' + rgbToHex(gradecolor[0], gradecolor[1], gradecolor[2]) + '; height:12px; width:12px"></i> ' + dformat(grades[i])
-    	 + 'tCO2e/yr<br>'
-	}
+  // loop through our density intervals and generate a label with a colored square for each interval
+  for (var i = 0; i < grades.length; i++) {
+    let gradecolor = colorScale(parseFloat(grades[i])/ raceExt[1])
+      div.innerHTML +=
+      ' <i style="background-color:' + rgbToHex(gradecolor[0], gradecolor[1], gradecolor[2]) + '; height:12px; width:12px"></i> ' + pformat(grades[i])
+       + '% non-white<br>'
+  }
 }//renderColorLegend
 renderColorLegend()
 }//wrapper
