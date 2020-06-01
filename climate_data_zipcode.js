@@ -77,8 +77,6 @@ async function wrapper(){
 		var colExt = d3.extent(geoobj.features.map(function(x){if(x.properties[dataset] != undefined){
 				return parseFloat(x.properties[dataset][column].trim().replace(/,/g,''))}
 		}))
-		
-		console.log(colExt)
 		let stdevColorRange = d3.scaleLinear().domain(colExt).range([0,1])
 		let thingmap = {}
 		function style(d){
@@ -89,6 +87,8 @@ async function wrapper(){
 	        	fillOpacity: 0.7,
 	        	className: 'z' + d.properties.ZCTA5CE10
 			}}
+
+
 
 		let colorInterpolator = d3.interpolatePurples
 		if (dataset != 'co2obj'){
@@ -227,6 +227,7 @@ async function wrapper(){
 		map.doubleClickZoom.disable();
 		map.scrollWheelZoom.disable();*/
 		return map;
+		
 	}//doMap
 
 	rmCols = ['Population', 'State', 'County', ' Households ']
