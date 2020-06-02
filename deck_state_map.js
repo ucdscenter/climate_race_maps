@@ -3,17 +3,28 @@ async function wrapper(){
 	var dformat = d3.format('.3f')
 	var pformat = d3.format('.2%')
   var mformat = d3.format('$.3s')
+  let zipcode_geojson = {
+    type : "FeatureCollection",
+    features : []
+  }
+	//var	zipcode_geojson = 
+  for(var i = 0; i < zip_geo_path.length; i++){
+    let state_geo = await d3.json(zip_geo_path[i]);
+    zipcode_geojson.features.push(...state_geo.features)
+  }
 
-	var	zipcode_geojson = await d3.json(zip_geo_path)
+
 	var climate_zipcodes = await d3.csv('data/JK2014-zip-code-results.csv')
-	var race_zipcodes = await d3.csv(race_data_path)
+  let race_zipcodes = []
+  for(var i = 0; i < zip_geo_path.length; i++){
+	 var state_demo_zipcodes = await d3.csv(race_data_path[i])
+   race_zipcodes.push(...state_demo_zipcodes)
+  }
 
 
   let x_val = decodeURIComponent(window.location.search.split("&")[0].split("=")[1])
   let y_val = decodeURIComponent(window.location.search.split("&")[1].split("=")[1])
 
-  console.log(x_val)
-  console.log(y_val)
 
 	$('#loading-div').addClass("hidden")
 
@@ -32,7 +43,7 @@ async function wrapper(){
 
 		d.zip = d.Name.split(",")[0]
 		d.percent_white = dformat(d[white_pop_column]/d[total_pop_column]) + " "
-    d.median_household_income = parseInt(d["Median Household Income, 2019"])
+    d.median_household_income = parseInt(d["Median Household Income, 2014"])
 		zipobj[d.zip] = [i]
 	})
 	var thing = 0
@@ -44,8 +55,6 @@ async function wrapper(){
 				let newname = k
 				newname.replace(/"/g, "")
 				newname.trim()
-
-				console.log(newname)
 
 			})*/
 			zipobj[d.ZipCode].push(thing)
@@ -82,7 +91,6 @@ async function wrapper(){
 
 let dataset = 'co2obj'
 let column = x_val
-console.log(column)
 var colExt = d3.extent(zipcode_geojson.features.map(function(x){if(x.properties[dataset] != undefined){
 				return parseFloat(x.properties[dataset][column].trim().replace(/,/g,''))}
 }))
@@ -102,10 +110,7 @@ var raceExt = d3.extent(zipcode_geojson.features.map(function(x){
     
 }
 }))
-console.log(raceExt)
 let heightScale = d3.scaleLinear().domain(colExt).range([10, 10000])
-console.log(zipcode_geojson)
-
 
 let center_circles = {
 	type: "FeatureCollection", 
@@ -117,9 +122,6 @@ zipcode_geojson.features.forEach(function(f){
 	let circle = turf.circle(point.geometry.coordinates, .5, options)
 	center_circles.features.push(circle)
 })
-
-console.log(center_circles)
-
 
 const mapboxAccessToken = 'pk.eyJ1IjoiZXpyYWVkZ2VydG9uIiwiYSI6ImNrNndpeTJ4eDA2NDEzbm52NG5jeTAyeDAifQ.IaHIVaAkQ_dEGVBtoSA9xw'
 const COLOR_SCALE = [
@@ -141,7 +143,6 @@ const COLOR_SCALE = [
   [128, 0, 38]
 ];
 
-console.log(colExt)
 const zipshapegeojsonLayer = new deck.GeoJsonLayer({
   data: zipcode_geojson,
   opacity: .5,
@@ -211,7 +212,6 @@ new deck.DeckGL({
 });
 
 function colorScale(x) {
-  console.log(isNaN(x))
    if (isNaN(x) == true){
     return [50, 50, 50]
    }
@@ -255,7 +255,7 @@ function tooltipdecider(object){
 function legenddecider(thing){
   let heightthing = ''
   if (y_val == 'percent_white'){
-    heightthing = pformat( 1 - thing) + '% non-white<br>'
+    heightthing = pformat( 1 - thing) + ' white<br>'
   }
   else{
     heightthing = mformat(thing)
@@ -283,7 +283,6 @@ function renderColorLegend(){
       return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
   }
   var numBoxes = 9
-  console.log(raceExt)
   let diff = raceExt[1] - raceExt[0]
   let interval = diff/numBoxes
   

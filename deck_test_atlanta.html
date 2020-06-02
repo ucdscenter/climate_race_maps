@@ -98,7 +98,8 @@ label {
   <p style="font-size: 10px; width: 150px">
     tCO2e/yr is Tons C02 emitted per year for <b><span id="descriptive-x-axis"></span></b><br>
     Bar height minimum is 10- <span id="min_val"></span> tC02e/yr<br>
-    Bar height maximum is 10000- <span id="max_val"></span> tC02e/yr
+    Bar height maximum is 10000- <span id="max_val"></span> tC02e/yr<br>
+    Grey zicodes have no race data for 2014
   </p>
   <hr>
   <p>Colors</p>
@@ -143,15 +144,15 @@ label {
 <script src="https://cdn.jsdelivr.net/npm/@turf/turf@5/turf.min.js"></script>
 <script>
   const stateIndex = '13'
-  const stateInitials = 'GA'
-  const race_data_path = 'data/zip_codes_race/atlanta_zip_big.csv'
-  const zip_geo_path = 'data/ga_georgia_zip_codes_geo.min.json'
+  const stateInitials = ['GA']
+  const race_data_path = ['data/zip_codes_race/2014_georgia_Ranking.csv']
+  const zip_geo_path = ['data/ga_georgia_zip_codes_geo.min.json']
   //const race_header_path = 'data/ohio_counties_t/ACSDP5Y2014.DP05_metadata_2020-02-28T140329.csv'
   const viewloc = [33.7, -84.5]
   const viewz = 10
-  const white_pop_column = "# White Population, Alone, 2019"
-  const income_column = "Average Household Income, 2019"
-  const total_pop_column = "# Population, 2019"
+  const white_pop_column = "# White Population, Alone, 2014"
+  const income_column = "Average Household Income, 2014"
+  const total_pop_column = "# Population, 2014"
   const white_column = 'percent_white'
 </script>
 <script src="deck_state_map.js"></script>
