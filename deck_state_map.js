@@ -42,7 +42,7 @@ async function wrapper(){
 	race_zipcodes.forEach(function(d, i){
 
 		d.zip = d.Name.split(",")[0]
-		d.percent_white = dformat(d[white_pop_column]/d[total_pop_column]) + " "
+		d.percent_white = dformat(d[white_pop_column]/d[total_pop_column])
     d.median_household_income = parseInt(d["Median Household Income, 2014"])
 		zipobj[d.zip] = [i]
 	})
@@ -105,7 +105,10 @@ var raceExt = d3.extent(zipcode_geojson.features.map(function(x){
       return (1 - x.properties.raceobj[y_val])
     }
     else{
-      return x.properties.raceobj[y_val];
+      if (x.properties.raceobj[y_val] > 0){
+        return x.properties.raceobj[y_val];
+      }
+      
     }
     
 }
@@ -145,7 +148,7 @@ const COLOR_SCALE = [
 
 const zipshapegeojsonLayer = new deck.GeoJsonLayer({
   data: zipcode_geojson,
-  opacity: .5,
+  opacity: .4,
   stroked: true,
   filled: true,
   extruded: true,
@@ -166,13 +169,22 @@ const zipshapegeojsonLayer = new deck.GeoJsonLayer({
     },
   getLineColor: f => [0, 0, 0],
 
-  pickable: true
+  pickable: true,
+  onHover: function(d, e){
+    if (d.object){
+      if (d.object.properties != undefined){
+        d3.select(".dot-selected").classed("dot-selected", false)
+        d3.select(".dot-" + d.object.properties.co2obj.ZipCode).classed("dot-selected", true)
+      }
+    }
+  }
+  
 });
 
 
 const zipcountgeojsonLayer = new deck.GeoJsonLayer({
   data: center_circles,
-  opacity: .8,
+  opacity: 1,
   stroked: true,
   filled: true,
   extruded: true,
@@ -190,10 +202,15 @@ const zipcountgeojsonLayer = new deck.GeoJsonLayer({
     else{
       return colorScale(d.properties.raceobj[y_val]);
     }
+  },
+  updateTriggers: {
+        getFillColor: []
     },
   getLineColor: f => [0, 0, 0],
+  pickable: true,
+  onHover: function(d, e){
 
-  pickable: true
+  }
 });
 
 new deck.DeckGL({
@@ -258,9 +275,9 @@ function legenddecider(thing){
     heightthing = pformat( 1 - thing) + ' white<br>'
   }
   else{
-    heightthing = mformat(thing)
+    heightthing = mformat(thing) + '<br>'
   }
-  return heightthing + '<br>'
+  return heightthing
 }
 
 function getTooltip({object}) {
@@ -300,7 +317,6 @@ function renderColorLegend(){
     else {
       tformat = dformat
     }
-
     for(var i = 0; i < numBoxes + 1; i++){
       grades.push(raceExt[0] + (interval * i))
     }
@@ -319,6 +335,81 @@ function renderColorLegend(){
   }
 }//renderColorLegend
 renderColorLegend()
+
+function renderDotPlot(){
+  labelstr = ""
+  let ylabel = ""
+  if (y_val == 'percent_white'){
+   ylabel = "% Non-White Population"
+  }
+  else{
+    ylabel = "Median Household Income"
+  }
+  labelstr = x_val + " by " + ylabel
+  d3.select('#dotplot-label').text(labelstr)
+  let gwidth = window.innerWidth * .25
+  let gheight = window.innerHeight * .25
+  let padding = {
+    top : 5,
+    bottom : 20,
+    left : 40,
+    right : 5
+  }
+
+  let xScale = d3.scaleLinear().domain(raceExt).range([0, gwidth - (padding.left + padding.right)])
+  let yScale = d3.scaleLinear().domain([colExt[0], colExt[1] + 3]).range([gheight - (padding.top + padding.bottom), 0])
+  let dot_svg = d3.select("#dotplot")
+    .append("svg")
+    .attr("width", gwidth)
+    .attr("height", gheight);
+
+  dot_svg.append("g")
+        .attr("transform", "translate(" + padding.left + "," + (gheight  - (padding.top + padding.bottom)) + ")")
+        .attr("class", 'x-axis')
+        .call(d3.axisBottom(xScale).ticks(4));
+  dot_svg.append("g")
+        .attr("transform", "translate(" + padding.left + "," + 0 + ")")
+        .attr("class", 'y-axis')
+        .call(d3.axisLeft(yScale).ticks(4));
+
+  dot_svg.append("text").text(ylabel).attr("x", (gwidth/2) - 25).attr("y", gheight - 2).style("font-size", '7px')
+  dot_svg.append("text").text("tC02/yr").attr("x", 0).attr("y", (gheight / 2) -1 ).style("font-size", '8px')
+  let dotg = dot_svg.append("g").attr('transform', 'translate(' + padding.left + ',' + 0 + ')')
+  console.log(zipcode_geojson)
+  dotg.selectAll(".g_circle")
+      .data(zipcode_geojson.features)
+      .enter()
+      .append("circle")
+      .attr("cx", function(d){
+        return xScale(d.properties.raceobj[y_val])
+      })
+      .attr("cy", function(d){
+        return yScale(d.properties.co2obj[x_val])
+      })
+      .attr("r", 2.5)
+      .style("fill", function(d){
+        var c;
+        if (y_val == 'percent_white'){
+          c = colorScale( 1 - d.properties.raceobj[y_val])
+        }
+        else{
+          c = colorScale(d.properties.raceobj[y_val])
+        }
+   
+        return "rgb(" + c.join(",") + ")"
+      })
+      .attr("class", function(d){
+        let thestr = "dot dot-" + d.properties.co2obj.ZipCode;
+        if(d.properties.co2obj.ZipCode == undefined){
+          return thestr + " hidden"
+        }
+        return thestr
+      })
+
+
+
+}
+renderDotPlot()
 
 }//wrapper
 

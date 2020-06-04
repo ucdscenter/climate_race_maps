@@ -5,23 +5,25 @@
          font-size: 8px;
     }
     .hidden {
-    	display:none;
+      display:none;
     }
+    #map-1 { height: 600px; }
+    #map-2 { height: 600px; }
 
     .info {
-	    padding: 6px 8px;
-	    font: 14px/16px Arial, Helvetica, sans-serif;
-	    background: white;
-	    background: rgba(255,255,255,0.8);
-	    box-shadow: 0 0 15px rgba(0,0,0,0.2);
-	    border-radius: 5px;
-	}
-	.info h4 {
-    	margin: 0 0 5px;
-    	color: #777;
-	}
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255,255,255,0.8);
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      border-radius: 5px;
+  }
+  .info h4 {
+      margin: 0 0 5px;
+      color: #777;
+  }
 
-	.legend {
+  .legend {
     line-height: 18px;
     color: #555;
 }
@@ -33,7 +35,7 @@ i {
     opacity: 0.9;
 }
 .hidden {
-	display : none;
+  display : none;
 }
 
 
@@ -54,6 +56,28 @@ body {
   z-index: 1;
 }
 
+
+#dotplot {
+  font-family: Helvetica, Arial, sans-serif;
+  position: absolute;
+  background: #fff;
+  top: 1vh;
+  right: 1vh;
+  margin: 1px;
+  padding: 8px;
+  z-index: 1
+}
+
+
+.dot {
+  stroke : black;
+  stroke-width : .1;
+}
+.dot-selected {
+  stroke : blue;
+  stroke-width : 2;
+}
+
 label {
   display: inline-block;
   width: 140px;
@@ -69,6 +93,7 @@ label {
   padding: 20px;
   z-index: 1;
 }
+
 
 
 .deck-tooltip {
@@ -89,7 +114,7 @@ label {
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 <link rel="stylesheet" href="src/leaflet/leaflet.css" />
-<h5 id="title" align="center">Cincinnati Household C02 Footprint-Race 2014 Exploratory Vis</h5>
+<h5 id="title" align="center">Cincinnati Household C02 Footprint-Race 2014 Map</h5>
 <div id="control-panel-race">
 	<p>Legend</p>
 	<p style="font-size: 10px; width: 150px">
@@ -105,6 +130,9 @@ label {
 	<div style="font-size: 10px" id="color-legend">
 		
 	</div>
+</div>
+  <div id="dotplot">
+  <p id="dotplot-label" style="font-size: 10px"></p>
 </div>
 <body>
 	<div class="container-fluid">

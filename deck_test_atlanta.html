@@ -56,6 +56,28 @@ body {
   z-index: 1;
 }
 
+
+#dotplot {
+  font-family: Helvetica, Arial, sans-serif;
+  position: absolute;
+  background: #fff;
+  top: 1vh;
+  right: 1vh;
+  margin: 1px;
+  padding: 5px;
+  z-index: 1
+}
+
+
+.dot {
+  stroke : black;
+  stroke-width : .1;
+}
+.dot-selected {
+  stroke : blue;
+  stroke-width : 2;
+}
+
 label {
   display: inline-block;
   width: 140px;
@@ -92,7 +114,7 @@ label {
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 <link rel="stylesheet" href="src/leaflet/leaflet.css" />
-<h5 id="title" align="center">Atlanta Household C02 Footprint-Race 2014 Exploratory Vis</h5>
+<h5 id="title" align="center">Atlanta Household C02 Footprint-Race 2014 Exploratory Map</h5>
 <div id="control-panel-race">
   <p>Legend</p>
   <p style="font-size: 10px; width: 150px">
@@ -108,6 +130,9 @@ label {
   <div style="font-size: 10px" id="color-legend">
     
   </div>
+</div>
+<div id="dotplot">
+  <p id="dotplot-label" style="font-size: 10px"></p>
 </div>
 <body>
 	<div class="container-fluid">
