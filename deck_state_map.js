@@ -15,6 +15,8 @@ async function wrapper(){
 
 
 	var climate_zipcodes = await d3.csv('data/JK2014-zip-code-results.csv')
+  var city_msa = await d3.csv('data/' + city_msa_file)
+  console.log(city_msa)
   let race_zipcodes = []
   for(var i = 0; i < zip_geo_path.length; i++){
 	 var state_demo_zipcodes = await d3.csv(race_data_path[i])
@@ -65,13 +67,18 @@ async function wrapper(){
 	})
 	var thing2 = 0
 	zipcode_geojson.features = zipcode_geojson.features.filter(function(d, i ){
-
-		
 		if (zipobj[d.properties.ZCTA5CE10] != undefined){
-			zipobj[d.properties.ZCTA5CE10].push(thing2);
-			thing2++;
-			return true
+
+      for(var i=0; i < city_msa.length; i++){
+        if (d.properties.ZCTA5CE10 == city_msa[i].FIPS){
+          zipobj[d.properties.ZCTA5CE10].push(thing2);
+          thing2++;
+          return true
+        }
+      }
+			
 		}
+
 		return false
 	})
 
@@ -146,6 +153,25 @@ const COLOR_SCALE = [
   [128, 0, 38]
 ];
 
+
+const RACE_COLOR_SCALE = [
+   // negative
+  [0,0,0],
+  [0,0,0],
+  [0,0,0],
+  [0,0,0],
+
+  // positive
+  [255,255,229],
+  [247,252,185],
+  [217,240,163],
+  [173,221,142],
+  [120,198,121],
+  [65,171,93],
+  [35,132,67],
+  [0,104,55],
+  [0,69,41]
+]
 const zipshapegeojsonLayer = new deck.GeoJsonLayer({
   data: zipcode_geojson,
   opacity: .4,
@@ -229,7 +255,8 @@ new deck.DeckGL({
 });
 
 function colorScale(x) {
-   if (isNaN(x) == true){
+   if (isNaN(x) == true || x <= 0){
+    console.log(x)
     return [50, 50, 50]
    }
   if (y_val == 'percent_white'){
@@ -237,9 +264,9 @@ function colorScale(x) {
     const i = Math.round(x * 7) + 4;
 
     if (x < 0) {
-      return COLOR_SCALE[i] || COLOR_SCALE[0];
+      return RACE_COLOR_SCALE[i] || RACE_COLOR_SCALE[0];
     }
-    return COLOR_SCALE[i] || COLOR_SCALE[COLOR_SCALE.length - 1];
+    return RACE_COLOR_SCALE[i] || RACE_COLOR_SCALE[RACE_COLOR_SCALE.length - 1];
   }
   else{
     const i = Math.round((x - raceExt[0])/(raceExt[1] - raceExt[0]) * 7) + 4;
@@ -258,9 +285,9 @@ function heighttooltipdecider(object){
 function tooltipdecider(object){
   let heightthing = 0
   if (y_val == 'percent_white'){
-    heightthing = pformat( 1 - object.properties.raceobj[y_val])
+    heightthing = pformat(object.properties.raceobj[y_val])
   
-   return "Percent of Non-White Population " + heightthing
+   return "Percent of White Population " + heightthing
  }
   else{
     heightthing = mformat(object.properties.raceobj[y_val])
@@ -272,7 +299,7 @@ function tooltipdecider(object){
 function legenddecider(thing){
   let heightthing = ''
   if (y_val == 'percent_white'){
-    heightthing = pformat( 1 - thing) + ' white<br>'
+    heightthing = pformat(1 - thing) + ' white<br>'
   }
   else{
     heightthing = mformat(thing) + '<br>'
@@ -339,14 +366,8 @@ renderColorLegend()
 function renderDotPlot(){
   labelstr = ""
   let ylabel = ""
-  if (y_val == 'percent_white'){
-   ylabel = "% Non-White Population"
-  }
-  else{
-    ylabel = "Median Household Income"
-  }
-  labelstr = x_val + " by " + ylabel
-  d3.select('#dotplot-label').text(labelstr)
+  var xScale
+
   let gwidth = window.innerWidth * .25
   let gheight = window.innerHeight * .25
   let padding = {
@@ -355,9 +376,23 @@ function renderDotPlot(){
     left : 40,
     right : 5
   }
+  var tickformat
+  if (y_val == 'percent_white'){
+   ylabel = "% White Population"
+    xScale = d3.scaleLinear().domain([0, 1]).range([0, gwidth - (padding.left + padding.right)])
+    tickformat = d3.format('.0%')
+  }
+  else{
+    ylabel = "Median Household Income"
+    xScale = d3.scaleLinear().domain(raceExt).range([0, gwidth - (padding.left + padding.right)])
+    tickformat = d3.format('$.2s')
+  }
+  labelstr = x_val + " by " + ylabel
+  d3.select('#dotplot-label').text(labelstr)
+  
 
-  let xScale = d3.scaleLinear().domain(raceExt).range([0, gwidth - (padding.left + padding.right)])
-  let yScale = d3.scaleLinear().domain([colExt[0], colExt[1] + 3]).range([gheight - (padding.top + padding.bottom), 0])
+ 
+  let yScale = d3.scaleLinear().domain([ 0, colExt[1] + 3]).range([gheight - (padding.top + padding.bottom), 0])
   let dot_svg = d3.select("#dotplot")
     .append("svg")
     .attr("width", gwidth)
@@ -366,7 +401,7 @@ function renderDotPlot(){
   dot_svg.append("g")
         .attr("transform", "translate(" + padding.left + "," + (gheight  - (padding.top + padding.bottom)) + ")")
         .attr("class", 'x-axis')
-        .call(d3.axisBottom(xScale).ticks(4));
+        .call(d3.axisBottom(xScale).ticks(4).tickFormat(tickformat));
   dot_svg.append("g")
         .attr("transform", "translate(" + padding.left + "," + 0 + ")")
         .attr("class", 'y-axis')
@@ -375,12 +410,15 @@ function renderDotPlot(){
   dot_svg.append("text").text(ylabel).attr("x", (gwidth/2) - 25).attr("y", gheight - 2).style("font-size", '7px')
   dot_svg.append("text").text("tC02/yr").attr("x", 0).attr("y", (gheight / 2) -1 ).style("font-size", '8px')
   let dotg = dot_svg.append("g").attr('transform', 'translate(' + padding.left + ',' + 0 + ')')
-  console.log(zipcode_geojson)
+
   dotg.selectAll(".g_circle")
       .data(zipcode_geojson.features)
       .enter()
       .append("circle")
       .attr("cx", function(d){
+        if (xScale(d.properties.raceobj[y_val]) < 0){
+          return 0
+        }
         return xScale(d.properties.raceobj[y_val])
       })
       .attr("cy", function(d){
