@@ -23,31 +23,35 @@
     	color: #777;
 	}
 
-
 	.legend {
     line-height: 18px;
     color: #555;
 }
-.legend i {
+i {
     width: 18px;
     height: 18px;
     float: left;
     margin-right: 8px;
     opacity: 0.9;
 }
-
-.dotplot i {
-    width: 18px;
-    height: 18px;
-    float: right;
-    margin-right: 8px;
-    opacity: 0.9;
-}
-
-
 .hidden {
 	display : none;
 }
+
+.deck-tooltip {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  position: absolute;
+  padding: 4px;
+  margin: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  max-width: 300px;
+  font-size: 10px;
+  z-index: 9;
+  pointer-events: none;
+}
+
 </style>
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
@@ -59,49 +63,20 @@
 		<div class="row">
 
 			<div class="col-12" >
-				<h1 align="center">Georgia C02 Footprint-Race 2014 Map</h1>
-				<div class="row">
+        
 					<div class="col-12 hidden" id="loading-div" align="center">
 						<img src="big-ajax-loader.gif">
 					</div>
-					<div class="col-12">
-					</div>
-					<div class="col-6" id="map-1-div">
-						<div class="row">
-							<div class="col-8">
-								<h5 id="map-1-label"></h5>
-							</div>
-							<div class="col-4" >
-								<select class="form-control" id="co2-col-select" align="left" style="">
-								</select>
-							</div>
-						</div>
-					
-						<div id="map-1">
-							
-						</div>
-
-					</div>
-
-					<div class="col-6" id="map-2-div">
-						<div class="row">
-							<div class="col-8">
-								<h5 id="map-2-label"></h5>
-							</div>
-							<div class="col-4">
-						
-							</div>
-						</div>
-						<div id="map-2">
-							
-						</div>
-
+					<div class="col-12" id="graph-div">
+            <h5 id="title" align="center">Atlanta Household C02 Footprint-Race 2014 Exploratory Vis
+            </h5>
+            <p>hi there</p>
 					</div>
 				</div>
-				
 			</div>
-		</div>
 	</div>
+
+
 </body>
 
 <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
@@ -110,16 +85,5 @@
 <script type="text/javascript" src="src/d3.v5.js"></script>
 <script type="text/javascript" src="src/crossfilter.js"></script>
 <script type="text/javascript" src="src/dc.js"></script>
-<script src="src/leaflet/leaflet.js"></script>
-	<script type="text/javascript" src="http://d3js.org/queue.v1.min.js"></script>
-	<script type="text/javascript" src="http://d3js.org/topojson.v1.min.js"></script> 
-<script>
-	const stateIndex = '13'
-	const stateInitials = 'GA'
-	const race_data_path = 'data/georgia_counties_t/ACSDP5Y2014.DP05_data_with_overlays_2020-02-11T112630.csv'
-	const race_header_path = 'data/georgia_counties_t/ACSDP5Y2014.DP05_metadata_2020-02-11T112630.csv'
-	const viewloc = [32.8, -83]
-	const viewz = 7.4
-	const white_column = "DP05_0032PE"
-</script>
-<script src='climate_data.js'></script>
+
+<script src="dotplots.js"></script>
