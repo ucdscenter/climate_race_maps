@@ -16,6 +16,14 @@ async function wrapper(){
 	let area_axis_select =  d3.select("#area-axis-select")
 	let height_axis_select = d3.select('#height-axis-select')
 	let cities_included = ["cincinnati", "atlanta"]
+
+	let city_links = d3.selectAll(".city")
+	console.log(city_links)
+
+	city_links.attr("class", function(d){
+		let c = d3.select(this).attr('id')
+		return "city"
+	})
 	area_axis_select
 		.selectAll("option")
 		.data(area_vars)
@@ -40,40 +48,42 @@ async function wrapper(){
 			return d[0]
 		})
 
-	area_axis_select.on("change", function(d){
-		let xval = d3.select(this).property("value")
-		cities_included.forEach(function(c){
-			let oldlink = d3.select("#" + c +"-link").attr("href")
-		let linkvars = oldlink.split("?")
-		let newlink = linkvars[0] + "?" + "x=" + xval + "&" + linkvars[1].split("&")[1] 
-		console.log(newlink)
-		d3.select("#" + c +"-link").attr("href", newlink )
+	
+
+	let xval = area_axis_select.property("value")
+	let yval = height_axis_select.property("value")
+
+	console.log(xval)
+	console.log(yval)
+
+	function optionChange(){
+		xval = area_axis_select.property("value")
+		yval = height_axis_select.property("value")
+		console.log(xval)
+		console.log(yval)
+		city_links.attr("class", function(d){
+			let c = d3.select(this).attr('id')
+			let oldlink = d3.select("#" + c).attr("href");
+			oldlink = oldlink.split("?")[0];
+			var searchParams = new URLSearchParams();
+			searchParams.append("x", xval)
+			searchParams.append("y", yval)
+			searchParams.append("city", c)
+			console.log(searchParams.toString())
+			newlink = oldlink + "?" + searchParams.toString()
+			console.log(newlink)
+			d3.select("#" + c).attr("href", newlink )
+			return "city"
 		})
+	}
+	area_axis_select.on("change", function(d){
+		optionChange()
 	})
 	height_axis_select.on("change", function(d){
-		let yval = d3.select(this).property("value")
-		cities_included.forEach(function(c){
-			let oldlink = d3.select("#" + c +"-link").attr("href")
-			let linkvars = oldlink.split("?")
-			let newlink = linkvars[0] + "?" + linkvars[1].split("&")[0] + "&y=" + yval 
-			console.log(newlink)
-			d3.select("#" + c +"-link").attr("href", newlink)
-		})
+		optionChange()
 	})
-	cities_included.forEach(function(c){
-			let oldlink = d3.select("#" + c +"-link").attr("href")
-		let linkvars = oldlink.split("?")
-		let newlink = linkvars[0] + "?" + "x=" + area_vars[0] + "&" + linkvars[1].split("&")[1] 
-		console.log(newlink)
-		d3.select("#" + c +"-link").attr("href", newlink )
-	})
-	cities_included.forEach(function(c){
-			let oldlink = d3.select("#" + c +"-link").attr("href")
-			let linkvars = oldlink.split("?")
-			let newlink = linkvars[0] + "?" + linkvars[1].split("&")[0] + "&y=" + height_vars[0][1]
-			console.log(newlink)
-			d3.select("#" + c +"-link").attr("href", newlink)
-	})
+
+	optionChange()
 
 
 

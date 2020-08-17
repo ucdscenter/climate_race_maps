@@ -1,5 +1,8 @@
 async function wrapper(){
 
+
+
+
 	var dformat = d3.format('.3f')
 	var pformat = d3.format('.2%')
   var mformat = d3.format('$.3s')
@@ -13,20 +16,27 @@ async function wrapper(){
     zipcode_geojson.features.push(...state_geo.features)
   }
 
+  console.log(zipcode_geojson)
+
 
 	var climate_zipcodes = await d3.csv('data/JK2014-zip-code-results.csv')
   var city_msa = await d3.csv('data/' + city_msa_file)
   console.log(city_msa)
-  let race_zipcodes = []
-  for(var i = 0; i < zip_geo_path.length; i++){
+  let race_zipcodes = city_msa
+  /*for(var i = 0; i < zip_geo_path.length; i++){
 	 var state_demo_zipcodes = await d3.csv(race_data_path[i])
    race_zipcodes.push(...state_demo_zipcodes)
-  }
+  }*/
 
 
-  let x_val = decodeURIComponent(window.location.search.split("&")[0].split("=")[1])
-  let y_val = decodeURIComponent(window.location.search.split("&")[1].split("=")[1])
+  console.log(race_zipcodes)
 
+  let params = getJsonFromUrl(window.location.search)
+  let x_val = decodeURIComponent(params.x)
+  let y_val = decodeURIComponent(params.y)
+
+  console.log(x_val)
+  console.log(y_val)
 
 	$('#loading-div').addClass("hidden")
 
@@ -42,16 +52,21 @@ async function wrapper(){
 	
 	var zipobj = {}
 	race_zipcodes.forEach(function(d, i){
-
 		d.zip = d.Name.split(",")[0]
-		d.percent_white = dformat(d[white_pop_column]/d[total_pop_column])
-    d.median_household_income = parseInt(d["Median Household Income, 2014"])
+
+		d.percent_white = dformat(parseInt(d[white_pop_column].replace(',', ""))/ parseInt(d[total_pop_column].replace(',', "")))
+    console.log(parseInt(d[white_pop_column].replace(',', "")))
+    //console.log(d.percent_white)
+    //console.log(d.percent_white)
+    d.median_household_income = parseInt(d["Median Household Income, 2014"].replace(',', ""))
 		zipobj[d.zip] = [i]
 	})
 	var thing = 0
 	climate_zipcodes = climate_zipcodes.filter(function(d, i){
-		
-		if(zipobj[d.ZipCode] != undefined){
+
+    let zipstr = d.ZipCode.toString().length == 4 ? "0" + d.ZipCode.toString() : d.ZipCode.toString()
+    
+		if(zipobj[zipstr] != undefined){
 			/*console.log(d)
 			Object.keys(d).forEach(function(k){
 				let newname = k
@@ -59,12 +74,14 @@ async function wrapper(){
 				newname.trim()
 
 			})*/
-			zipobj[d.ZipCode].push(thing)
+			zipobj[zipstr].push(thing)
 			thing++
 			return true
 		}
 		return false
 	})
+
+
 	var thing2 = 0
 	zipcode_geojson.features = zipcode_geojson.features.filter(function(d, i ){
 		if (zipobj[d.properties.ZCTA5CE10] != undefined){
@@ -81,7 +98,7 @@ async function wrapper(){
 
 		return false
 	})
-
+  console.log(zipcode_geojson)
 	Object.values(zipobj).forEach(function(d){
 		if(d.length == 3){
 		zipcode_geojson.features[d[2]].properties.raceobj = race_zipcodes[d[0]]
@@ -101,6 +118,8 @@ let column = x_val
 var colExt = d3.extent(zipcode_geojson.features.map(function(x){if(x.properties[dataset] != undefined){
 				return parseFloat(x.properties[dataset][column].trim().replace(/,/g,''))}
 }))
+
+console.log(zipcode_geojson)
 
 
 d3.select('#min_val').text(colExt[0])
