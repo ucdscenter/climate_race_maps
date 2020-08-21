@@ -55,7 +55,6 @@ async function wrapper(){
 		d.zip = d.Name.split(",")[0]
 
 		d.percent_white = dformat(parseInt(d[white_pop_column].replace(',', ""))/ parseInt(d[total_pop_column].replace(',', "")))
-    console.log(parseInt(d[white_pop_column].replace(',', "")))
     //console.log(d.percent_white)
     //console.log(d.percent_white)
     d.median_household_income = parseInt(d["Median Household Income, 2014"].replace(',', ""))
@@ -383,12 +382,31 @@ function renderColorLegend(){
 renderColorLegend()
 
 function renderDotPlot(){
+
+  d3.select('#dot-svg').remove()
   labelstr = ""
   let ylabel = ""
   var xScale
 
-  let gwidth = window.innerWidth * .25
-  let gheight = window.innerHeight * .25
+  let gwidth = window.innerWidth * .25;
+  let gheight = window.innerHeight * .25;
+
+
+
+  if (gheight > gwidth){
+    gwidth = gheight * 1.85;
+  }
+  else {
+    gheight = gwidth * .54;
+  }
+ 
+  if ((window.innerWidth - gwidth) < 230){
+    d3.selectAll(".legend-section").style("width", 150 - (230 - (window.innerWidth - gwidth)))
+  }
+  else{
+    d3.selectAll(".legend-section").style("width", 150)
+  }
+
   let padding = {
     top : 5,
     bottom : 20,
@@ -407,7 +425,7 @@ function renderDotPlot(){
     tickformat = d3.format('$.2s')
   }
   labelstr = x_val + " by " + ylabel
-  d3.select('#dotplot-label').text(labelstr)
+  //d3.select('#dotplot-label').text(labelstr)
   
 
  
@@ -415,7 +433,8 @@ function renderDotPlot(){
   let dot_svg = d3.select("#dotplot")
     .append("svg")
     .attr("width", gwidth)
-    .attr("height", gheight);
+    .attr("height", gheight)
+    .attr("id", "dot-svg");
 
   dot_svg.append("g")
         .attr("transform", "translate(" + padding.left + "," + (gheight  - (padding.top + padding.bottom)) + ")")
@@ -467,6 +486,13 @@ function renderDotPlot(){
 
 }
 renderDotPlot()
+
+
+$( window ).resize(function() {
+   renderDotPlot()
+
+  })
+  $(window).resize()
 
 }//wrapper
 

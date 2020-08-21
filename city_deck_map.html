@@ -27,6 +27,11 @@
     line-height: 18px;
     color: #555;
 }
+
+  .legend-section {
+    font-size: 10px; 
+    width: 150px
+  }
 i {
     width: 18px;
     height: 18px;
@@ -114,10 +119,10 @@ label {
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
 <link rel="stylesheet" href="src/leaflet/leaflet.css" />
-<h5 id="title" align="center"><span id="cityname"></span> Household C02 Footprint-Race 2014 Map</h5>
+<h5 id="title" align="center"><span id="cityname"></span> <!--Household C02 Footprint-Race 2014 Map--></h5>
 <div id="control-panel-race">
 	<p>Legend</p>
-	<p style="font-size: 10px; width: 150px">
+	<p class="legend-section">
 		tCO2e/yr is Tons C02 emitted per year for <b><span id="descriptive-x-axis"></span></b><br>
     Bar height minimum is 10- <span id="min_val"></span> tC02e/yr<br>
     Bar height maximum is 10000- <span id="max_val"></span> tC02e/yr<br>
@@ -125,7 +130,7 @@ label {
 	</p>
 	<hr>
 	<p>Colors</p>
-	<p style="font-size: 10px; width: 150px" id="descriptive-y-axis">
+	<p id="descriptive-y-axis" class="legend-section">
 	</p>
 	<div style="font-size: 10px" id="color-legend">
 		
