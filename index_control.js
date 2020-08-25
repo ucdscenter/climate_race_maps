@@ -22,7 +22,7 @@ async function wrapper(){
 
 	city_links.attr("class", function(d){
 		let c = d3.select(this).attr('id')
-		return "city"
+		return "btn btn-outline-dark city"
 	})
 	area_axis_select
 		.selectAll("option")
@@ -73,7 +73,7 @@ async function wrapper(){
 			newlink = oldlink + "?" + searchParams.toString()
 			console.log(newlink)
 			d3.select("#" + c).attr("href", newlink )
-			return "city"
+			return "btn btn-outline-dark city"
 		})
 	}
 	area_axis_select.on("change", function(d){
