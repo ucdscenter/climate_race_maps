@@ -35,7 +35,9 @@ async function wrapper(){
   	
 
 
-	async function create_data(x_name){
+	async function create_data(x_obj){
+		console.log(x_obj)
+		let x_name = x_obj.worklabel
 		let data = {
 			"extents" : {},
 			"zipcodes" : {}
@@ -60,7 +62,7 @@ async function wrapper(){
 			msa_data.forEach(function(r){
 				r.city = city_keys[i]
 				r.zip = r.Name.split(",")[0]
-				r.percent_white = parseInt(r[white_pop_column].replace(',', ""))/ parseInt(r[total_pop_column].replace(',', ""))
+				r[x_obj.worklabel] = parseInt(r[x_obj.datalabel].replace(',', ""))/ parseInt(r[total_pop_column].replace(',', ""))
 	    		r.median_household_income = parseInt(r["Median Household Income, 2014"].replace(',', ""))
 				data.zipcodes[r.FIPS] = r
 			})
@@ -145,18 +147,22 @@ async function wrapper(){
 	}
 
 	let formatted_data = {};
-	formatted_data[height_vars[0][1]] = await create_data(height_vars[0][1])
-	formatted_data[height_vars[1][1]] = await create_data(height_vars[1][1])
+
+	let compobj1 = parseInt(urlparams.comp1);
+	let compobj2 = parseInt(urlparams.comp2);
+	let comparr = [compobj1, compobj2]
+	formatted_data[height_vars[compobj1].worklabel] = await create_data(height_vars[compobj1])
+	formatted_data[height_vars[compobj2].worklabel] = await create_data(height_vars[compobj2])
 	console.log(formatted_data)
 	let svg_height = 300
 
 
 	function render_graph(){
-	height_vars.forEach(function(x_obj){
+	comparr.forEach(function(x){
 		d3.select('#dotplots-div').append("div").attr("class", "col-12 mb-2 mt-2").append("h3").text(
-			x_obj[0])
+			height_vars[x].longlabel)
 		area_vars.forEach(function(a){
-			create_quantile_graph(x_obj, a)
+			create_quantile_graph(height_vars[x], a)
 		})
 		d3.select('#dotplots-div').append("hr").attr("class", "col-12 mb-2 mt-2")
 	})
@@ -164,11 +170,12 @@ async function wrapper(){
 
 	
 	
-	function create_quantile_graph(x_name, y_name){
+	function create_quantile_graph(x_obj, y_name){
+		let x_name = x_obj.worklabel
 		let outerdiv = d3.select("#dotplots-div")
 		let innerdiv = outerdiv.append("div").attr("class", "col-lg-4 col-md-6 col-sm-12 mb-5")
 
-		innerdiv.append("p").text(x_name[0] + " by " + y_name)
+		innerdiv.append("p").text(x_obj.longlabel + " by " + y_name)
 
 		let svg_width = parseFloat(innerdiv.style("width").slice(0, -2))
 
@@ -179,19 +186,19 @@ async function wrapper(){
 	  var xScale, yScale
 
 	  var line_g
-	  var x_label
-	  if (x_name[1] == 'percent_white'){
-	    xScale = d3.scaleLinear().domain([0, 1]).range([0, svg_width - (padding.left + padding.right)])
-	    tickformat = d3.format('.0%')
-	    x_label = "% white"
+	  var x_label=x_obj.shortlabel
+
+
+	  if(x_name == "median_household_income"){
+	  	 xScale = d3.scaleLinear().domain([0, formatted_data[x_name].extents[x_name]]).range([0, svg_width - (padding.left + padding.right)])
+	    tickformat = d3.format('$.2s')
 	  }
 	  else{
-	    xScale = d3.scaleLinear().domain([0, formatted_data[x_name[1]].extents[x_name[1]]]).range([0, svg_width - (padding.left + padding.right)])
-	    tickformat = d3.format('$.2s')
-	    x_label = 'median income'
+	  	xScale = d3.scaleLinear().domain([0, 1]).range([0, svg_width - (padding.left + padding.right)])
+	    tickformat = d3.format('.0%')
 	  }
 
-	  yScale = d3.scaleLinear().domain([ 0, formatted_data[x_name[1]].extents[y_name] + 3]).range([svg_height - (padding.top + padding.bottom), 0])
+	  yScale = d3.scaleLinear().domain([ 0, formatted_data[x_name].extents[y_name] + 3]).range([svg_height - (padding.top + padding.bottom), 0])
 
 		let graph_svg = innerdiv.append("svg").attr("height", svg_height).attr("width", svg_width).attr("class", "line_graph")
 
@@ -226,7 +233,7 @@ async function wrapper(){
 		create_lines()*/
 
 		line_g.selectAll(".line")
-			.data(formatted_data[x_name[1]].zipcodes)
+			.data(formatted_data[x_name].zipcodes)
 			.enter()
 			.append("path")
 			.attr("fill", "none")
@@ -239,7 +246,7 @@ async function wrapper(){
         	.attr("d", function(d){
          		 return d3.line()
             		.x(function(d) { return xScale(d[0]); })
-            		.y(function(d) { return yScale(d[1][y_name]); }).curve(d3.curveMonotoneX)
+            		.y(function(d) { return yScale(d[1][y_name]); })//.curve(d3.curveMonotoneX)
             	(d[1].filter(function(q){
             		if(q[0] == undefined){
             			return false
@@ -248,7 +255,7 @@ async function wrapper(){
             	}).slice(1, -1))
             })
 
-        let extent_dots = line_g.selectAll(".extent_dots").data(formatted_data[x_name[1]].zipcodes)
+        let extent_dots = line_g.selectAll(".extent_dots").data(formatted_data[x_name].zipcodes)
         	.enter()
         	.append("g")
 
@@ -292,6 +299,55 @@ async function wrapper(){
 	       		return d[0] + " a_city"
 	       	})
 
+
+	     extent_dots.append("text")
+		    .attr("x", function(d){
+		       	if(d[1][0][0] == undefined){
+	       			return xScale(d[1][1][0]) + 3;
+	       		}
+	       		return xScale(d[1][0][0]) + 3;
+		       	})
+		       	.attr("y", function(d){
+		       	if(d[1][0][0] == undefined){
+	       			return xScale(d[1][1][1][y_name]) - 3;
+	       		}
+	       		return yScale(d[1][0][1][y_name]) - 3
+		       	})
+		       	.attr("display", "none")
+		       	.attr("class", function(d){
+		       		return d[0] + " city_text"
+		       	})
+		       	.text(function(d){
+
+		       		let firstlabel = ""
+		       		let secondlabel = ""
+		       		if(d[1][0][0] == undefined){
+	       				firstlabel = d[1][1][0];
+	       				secondlabel = d[1][1][1][y_name]
+	       			}
+	       			firstlabel =  d[1][0][0];
+	       			secondlabel = d[1][0][1][y_name]
+
+		       		return pformat(firstlabel) + ", " + dformat(secondlabel)
+		       	})
+
+
+	    extent_dots.append("text")
+		    .attr("x", function(d){
+		       		return xScale(d[1][d[1].length - 1][0]) - 3; 
+		       	})
+		       	.attr("y", function(d){
+		       		return yScale(d[1][d[1].length - 1][1][y_name]) - 3
+		       	})
+		       	.attr("display", "none")
+		       	.attr("text-anchor", "end")
+		       	.attr("class", function(d){
+		       		return d[0] + " city_text"
+		       	})
+		       	.text(function(d){
+		       		return pformat(d[1][d[1].length - 1][0]) + ", " + dformat(d[1][d[1].length - 1][1][y_name])
+		       	})
+
 	}//create_quantile_graph
 
 	async function do_buttons(){
@@ -312,17 +368,82 @@ async function wrapper(){
 			})
 			.on("click", function(d, i){
 				console.log("also clicked")
+				d3.selectAll(".city_text").attr("display", "none")
 				d3.selectAll(".a_city").attr("stroke-opacity", .3).attr("opacity", .3)
 				d3.selectAll("." + d).attr("stroke-opacity", 1).attr("opacity", 1).attr("fill-opacity", 1)
+				d3.selectAll("." + d + ".city_text").attr("display", "visible")
 				d3.event.stopPropagation();
 			})
 	}
+
+	async function do_comps_selects(){
+		let comp1_select = d3.select("#comp1-select")
+		let comp2_select = d3.select("#comp2-select")
+
+		comp1_select.selectAll("option")
+		.data(height_vars)
+		.enter()
+		.append("option")
+		.attr("value", function(d, i){
+			return i
+		})
+		.property("selected", function(d, i){
+			if (parseInt(urlparams.comp1) == i){
+				return true
+			}
+		})
+		.text(function(d){
+			return d.datalabel
+		})
+
+		comp1_select
+		.on("change", function(d){
+			let comp1val = comp1_select.property("value")
+			let comp2val = comp2_select.property("value")
+			var searchParams = new URLSearchParams();
+			searchParams.append("comp1", comp1val)
+			searchParams.append("comp2", comp2val)
+			let newlink = "full_dotplots.html?" + searchParams.toString()
+			console.log(newlink)
+			window.location.assign(newlink)
+		})
+
+		comp2_select.selectAll("option")
+		.data(height_vars)
+		.enter()
+		.append("option")
+		.attr("value", function(d, i){
+			return i
+		})
+		.property("selected", function(d, i){
+			if (parseInt(urlparams.comp2) == i){
+				return true
+			}
+		})
+		.text(function(d){
+			return d.datalabel
+		})
+
+		comp2_select
+		.on("change", function(d){
+			let comp1val = comp1_select.property("value")
+			let comp2val = comp2_select.property("value")
+			var searchParams = new URLSearchParams();
+			searchParams.append("comp1", comp1val)
+			searchParams.append("comp2", comp2val)
+			let newlink = "full_dotplots.html?" + searchParams.toString()
+			console.log(newlink)
+			window.location.assign(newlink)
+		})
+	}
+	await do_comps_selects()
 	await do_buttons()
 	await render_graph();
 	$("#loading").addClass("hidden")
 	$('body').click(function(e){
 		console.log("clicked")
 		d3.selectAll(".a_city").attr("stroke-opacity", .7).attr("opacity", .7)
+		d3.selectAll(".city_text").attr("display", "none")
 	})
 	//$("#after-loaded").removeClass("hidden")
 
