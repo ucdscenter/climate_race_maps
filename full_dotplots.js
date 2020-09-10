@@ -35,7 +35,8 @@ async function wrapper(){
   	
 
 
-	async function create_data(x_name){
+	async function create_data(x_obj){
+		console.log(x_obj)
 		let data = {
 			"extents" : {},
 			"zipcodes" : {}
@@ -60,7 +61,7 @@ async function wrapper(){
 			msa_data.forEach(function(r){
 				r.city = city_keys[i]
 				r.zip = r.Name.split(",")[0]
-				r.percent_white = parseInt(r[white_pop_column].replace(',', ""))/ parseInt(r[total_pop_column].replace(',', ""))
+				r.percent_white = parseInt(r[race_pop_column].replace(',', ""))/ parseInt(r[total_pop_column].replace(',', ""))
 	    		r.median_household_income = parseInt(r["Median Household Income, 2014"].replace(',', ""))
 				data.zipcodes[r.FIPS] = r
 			})
@@ -145,8 +146,11 @@ async function wrapper(){
 	}
 
 	let formatted_data = {};
-	formatted_data[height_vars[0][1]] = await create_data(height_vars[0][1])
-	formatted_data[height_vars[1][1]] = await create_data(height_vars[1][1])
+
+	let compobj1 = parseInt(urlparams.comp1);
+	let compobj2 = parseInt(urlparams.comp2);
+	formatted_data[height_vars[0][1]] = await create_data(height_vars[compobj1])
+	formatted_data[height_vars[1][1]] = await create_data(height_vars[compobj2])
 	console.log(formatted_data)
 	let svg_height = 300
 
@@ -180,7 +184,7 @@ async function wrapper(){
 
 	  var line_g
 	  var x_label
-	  if (x_name[1] == 'percent_white'){
+	  if (x_name[1] == race_column){
 	    xScale = d3.scaleLinear().domain([0, 1]).range([0, svg_width - (padding.left + padding.right)])
 	    tickformat = d3.format('.0%')
 	    x_label = "% white"
