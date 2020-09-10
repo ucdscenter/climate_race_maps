@@ -61,7 +61,7 @@ i {
     <div class="row">
     <div class="col-12">
       <h1>City Decile Plots</h1>
-      <p>These graphs depict carbon dioxide emissions by zipcode split into 10 equally sized groups per city, based on racial demography or median income. The line plots each group of zipcode's average emissions. Each line segment represents the 10% of zipcodes in that decile range. The colored points on the graphs denote the demographic extremes for each city, the highest and lowest values on the x-axis. </p>
+      <p>These graphs depict carbon dioxide emissions by zipcode split into 10 equally sized groups per city, based on racial demography or median income. The line plots each group of zipcode's average emissions. Each line segment represents the 10% of zipcodes in that decile range. The colored points on the graphs denote the demographic extremes for each city, the highest and lowest zipcodes for the selected demographic. Click on a city button to highlight</p>
     </div>
     </section>
     <section id="x_var-choices">
@@ -69,14 +69,14 @@ i {
     <div class="col-12">
       <h3>Select Demographics to compare</h3>
       <div class="row">
-        <div class="col-6">
+        <div class="col-lg-6 col-md-6 col-sm-12">
             <label>Select first variable to compare</label>
             <div class="input-group mb-3 input-group-lg">
               <select id="comp1-select" class="select">
               </select>
             </div>
           </div>
-          <div class="col-6">
+          <div class="col-lg-6 col-md-6 col-sm-12">
             <label>Select second variable to compare</label>
           <div class="input-group mb-3 input-group-lg">
             <select id="comp2-select" class="select">
@@ -334,7 +334,7 @@ const CITY_INFO = {
     {
       "index" : 4, 
       "longlabel" : "% population that is Hispanic",
-      "shortlabel" : "% white",
+      "shortlabel" : "% hispanic",
       "datalabel" : "# Hispanic Population, 2014",
       "worklabel" : "percent_hispanic"
     },

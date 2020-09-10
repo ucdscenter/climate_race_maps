@@ -327,7 +327,9 @@ async function wrapper(){
 	       			}
 	       			firstlabel =  d[1][0][0];
 	       			secondlabel = d[1][0][1][y_name]
-
+	       			if(x_name == "median_household_income"){
+	       				return mformat(firstlabel) + ", " + dformat(secondlabel)
+	       			}
 		       		return pformat(firstlabel) + ", " + dformat(secondlabel)
 		       	})
 
@@ -345,6 +347,9 @@ async function wrapper(){
 		       		return d[0] + " city_text"
 		       	})
 		       	.text(function(d){
+		       		if(x_name == "median_household_income"){
+	       				return mformat(d[1][d[1].length - 1][0]) + ", " + dformat(d[1][d[1].length - 1][1][y_name])
+	       			}
 		       		return pformat(d[1][d[1].length - 1][0]) + ", " + dformat(d[1][d[1].length - 1][1][y_name])
 		       	})
 
