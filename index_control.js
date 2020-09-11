@@ -11,8 +11,50 @@ async function wrapper(){
 		//["FUELOIL (gallons)"],
 		//["Nat. Gas (cu.ft.)"]]
 
-	let height_vars = [["% population that is white", "percent_white"], 
-	[ "median household income", "median_household_income"]]
+	const height_vars = [
+    {
+        "index" : 0, 
+        "longlabel" : "median household income",
+        "shortlabel" : "median income",
+        "datalabel" : "Median Household Income, 2014",
+        "worklabel" : "median_household_income"
+      },
+    {
+      "index" : 1, 
+      "longlabel" : "% population that is white",
+      "shortlabel" : "% white",
+      "datalabel" : "# White Population, Alone, 2014",
+      "worklabel" : "percent_white"
+    },
+    {
+      "index" : 2, 
+      "longlabel" : "% population that is Asian",
+      "shortlabel" : "% Asian",
+      "datalabel" : "# Asian Population, Alone, 2014",
+      "worklabel" : "percent_asian"
+    },
+    {
+      "index" : 3, 
+      "longlabel" : "% population that is Black",
+      "shortlabel" : "% black",
+      "datalabel" : "# Black Population, Alone, 2014",
+      "worklabel" : "percent_black"
+    },
+    {
+      "index" : 4, 
+      "longlabel" : "% population that is Hispanic",
+      "shortlabel" : "% hispanic",
+      "datalabel" : "# Hispanic Population, 2014",
+      "worklabel" : "percent_hispanic"
+    },
+    {
+      "index" : 5, 
+      "longlabel" : "% population that is Native American",
+      "shortlabel" : "% Native American",
+      "datalabel" : "# Population, Hispanic, American Indian and Alaska Native Alone, 2014",
+      "worklabel" : "percent_nativeamerican"
+    }
+  ]
 	let area_axis_select =  d3.select("#area-axis-select")
 	let height_axis_select = d3.select('#height-axis-select')
 	let cities_included = ["cincinnati", "atlanta"]
@@ -42,10 +84,10 @@ async function wrapper(){
 		.enter()
 		.append("option")
 		.attr("value", function(d){
-			return d[1]
+			return d.index;
 		})
 		.text(function(d){
-			return d[0]
+			return d.longlabel
 		})
 
 	

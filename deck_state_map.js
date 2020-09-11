@@ -33,18 +33,19 @@ async function wrapper(){
 
   let params = getJsonFromUrl(window.location.search)
   let x_val = decodeURIComponent(params.x)
-  let y_val = decodeURIComponent(params.y)
+  let y_val = height_vars[parseInt(decodeURIComponent(params.y))]
 
   console.log(x_val)
   console.log(y_val)
 
 	$('#loading-div').addClass("hidden")
 
-  if (y_val == 'percent_white'){
-    d3.select("#descriptive-y-axis").text("% of zipcode population that is not white:")
+  if (y_val.worklabel == 'median_household_income'){
+    d3.select("#descriptive-y-axis").text("Median household income:")
+    
   }
   else{
-    d3.select("#descriptive-y-axis").text("Median household income:")
+    d3.select("#descriptive-y-axis").text( y_val.longlabel + ":")
   }
 
   d3.select("#descriptive-x-axis").text(x_val)
@@ -54,9 +55,8 @@ async function wrapper(){
 	race_zipcodes.forEach(function(d, i){
 		d.zip = d.Name.split(",")[0]
 
-		d.percent_white = dformat(parseInt(d[white_pop_column].replace(',', ""))/ parseInt(d[total_pop_column].replace(',', "")))
-    //console.log(d.percent_white)
-    //console.log(d.percent_white)
+		d[y_val.worklabel] = dformat(parseInt(d[y_val.datalabel].replace(',', ""))/ parseInt(d[total_pop_column].replace(',', "")))
+    console.log(d[y_val.worklabel])
     d.median_household_income = parseInt(d["Median Household Income, 2014"].replace(',', ""))
 		zipobj[d.zip] = [i]
 	})
@@ -126,16 +126,16 @@ d3.select('#max_val').text(colExt[1])
 var raceExt = d3.extent(zipcode_geojson.features.map(function(x){
 
   if (x.properties.raceobj != undefined){
-    if (y_val == "percent_white"){
-      return (1 - x.properties.raceobj[y_val])
-    }
-    else{
-      if (x.properties.raceobj[y_val] > 0){
-        return x.properties.raceobj[y_val];
-      }
+    if (y_val.worklabel != "median_household_income"){
+      console.log()
+      return (1 - x.properties.raceobj[y_val.worklabel]) 
       
     }
-    
+    else{
+       if (x.properties.raceobj[y_val.worklabel] > 0){
+        return x.properties.raceobj[y_val.worklabel];
+      }
+    }   
 }
 }))
 let heightScale = d3.scaleLinear().domain(colExt).range([10, 10000])
@@ -204,11 +204,11 @@ const zipshapegeojsonLayer = new deck.GeoJsonLayer({
   } ,
   lineWidthScale: 5,
   getFillColor: function(d){
-    if (y_val == "percent_white"){
-     return colorScale(1 - d.properties.raceobj[y_val])
+    if (y_val.worklabel != "median_household_income"){
+     return colorScale(1 - d.properties.raceobj[y_val.worklabel])
     }
     else{
-      return colorScale(d.properties.raceobj[y_val]);
+      return colorScale(d.properties.raceobj[y_val.worklabel]);
     }
     },
   getLineColor: f => [0, 0, 0],
@@ -240,11 +240,11 @@ const zipcountgeojsonLayer = new deck.GeoJsonLayer({
   } ,
   getRadius: 1000,
   getFillColor: function(d){
-    if (y_val == "percent_white"){
-     return colorScale(1 - d.properties.raceobj[y_val])
+    if (y_val.worklabel != "median_household_income"){
+     return colorScale(1 - d.properties.raceobj[y_val.worklabel])
     }
     else{
-      return colorScale(d.properties.raceobj[y_val]);
+      return colorScale(d.properties.raceobj[y_val.worklabel]);
     }
   },
   updateTriggers: {
@@ -277,7 +277,7 @@ function colorScale(x) {
     console.log(x)
     return [50, 50, 50]
    }
-  if (y_val == 'percent_white'){
+  if (y_val.worklabel != "median_household_income"){
 
     const i = Math.round(x * 7) + 4;
 
@@ -302,13 +302,13 @@ function heighttooltipdecider(object){
 
 function tooltipdecider(object){
   let heightthing = 0
-  if (y_val == 'percent_white'){
-    heightthing = pformat(object.properties.raceobj[y_val])
+  if (y_val.worklabel != "median_household_income"){
+    heightthing = pformat(object.properties.raceobj[y_val.worklabel])
   
-   return "Percent of White Population " + heightthing
+   return y_val.longlabel + " " + heightthing
  }
   else{
-    heightthing = mformat(object.properties.raceobj[y_val])
+    heightthing = mformat(object.properties.raceobj[y_val.worklabel])
     return "Median Household Income " + heightthing;
   }
  
@@ -316,8 +316,8 @@ function tooltipdecider(object){
 
 function legenddecider(thing){
   let heightthing = ''
-  if (y_val == 'percent_white'){
-    heightthing = pformat(1 - thing) + ' white<br>'
+  if (y_val.worklabel != "median_household_income"){
+    heightthing = pformat(1 - thing) + " " + y_val.shortlabel.slice(1) + ' <br>'
   }
   else{
     heightthing = mformat(thing) + '<br>'
@@ -329,6 +329,7 @@ function getTooltip({object}) {
 
  
 	return object && `Zip Code ${object.properties.co2obj.ZipCode}
+  Total Pop ${object.properties.raceobj[total_pop_column]}
 	${heighttooltipdecider(object)}
 	 ${tooltipdecider(object)}`
 }
@@ -369,7 +370,7 @@ function renderColorLegend(){
   // loop through our density intervals and generate a label with a colored square for each interval
   for (var i = 0; i < grades.length; i++) {
     var gradecolor;
-    if (y_val == 'percent_white'){
+    if (y_val.worklabel != "median_household_income"){
       gradecolor = colorScale(parseFloat(grades[i])/ raceExt[1])
     }
     else{
@@ -414,8 +415,8 @@ function renderDotPlot(){
     right : 5
   }
   var tickformat
-  if (y_val == 'percent_white'){
-   ylabel = "% White Population"
+  if (y_val.worklabel != "median_household_income"){
+   ylabel = y_val.shortlabel
     xScale = d3.scaleLinear().domain([0, 1]).range([0, gwidth - (padding.left + padding.right)])
     tickformat = d3.format('.0%')
   }
@@ -454,10 +455,10 @@ function renderDotPlot(){
       .enter()
       .append("circle")
       .attr("cx", function(d){
-        if (xScale(d.properties.raceobj[y_val]) < 0){
+        if (xScale(d.properties.raceobj[y_val.worklabel]) < 0){
           return 0
         }
-        return xScale(d.properties.raceobj[y_val])
+        return xScale(d.properties.raceobj[y_val.worklabel])
       })
       .attr("cy", function(d){
         return yScale(d.properties.co2obj[x_val])
@@ -465,11 +466,11 @@ function renderDotPlot(){
       .attr("r", 2.5)
       .style("fill", function(d){
         var c;
-        if (y_val == 'percent_white'){
-          c = colorScale( 1 - d.properties.raceobj[y_val])
+        if (y_val.worklabel != "median_household_income"){
+          c = colorScale( 1 - d.properties.raceobj[y_val.worklabel])
         }
         else{
-          c = colorScale(d.properties.raceobj[y_val])
+          c = colorScale(d.properties.raceobj[y_val.worklabel])
         }
    
         return "rgb(" + c.join(",") + ")"
