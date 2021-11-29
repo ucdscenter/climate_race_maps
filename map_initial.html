@@ -1,0 +1,187 @@
+<html>
+<head>
+<style>
+    .labeltext {
+         font-family: Arial, Helvetica, sans-serif;
+         font-size: 8px;
+    }
+    .hidden {
+    	display:none;
+    }
+    #map-1 { height: 600px; }
+    #map-2 { height: 600px; }
+
+    .info {
+	    padding: 6px 8px;
+	    font: 14px/16px Arial, Helvetica, sans-serif;
+	    background: white;
+	    background: rgba(255,255,255,0.8);
+	    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	    border-radius: 5px;
+	}
+	.info h4 {
+    	margin: 0 0 5px;
+    	color: #777;
+	}
+
+	.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.9;
+}
+.hidden {
+	display : none;
+}
+#bg {
+ background-image: linear-gradient(#fff5e8, #000);
+}
+.city {
+	color : #301934;
+}
+.select {
+	font-size: 18px;
+}
+</style>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" crossorigin="anonymous"><link rel="stylesheet" href="src/style.css" />
+
+<link rel="stylesheet" href="src/leaflet/leaflet.css" />
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+
+</head>
+<body id="bg">
+	<div class="flex-column" >
+		<div class="cover-container d-flex h-90 p-3 mx-auto flex-column" style="min-height: 100%;">
+		<div class="row">
+			<div class="col-1"></div>
+			<div class="col-6">
+				 
+			<header class="masthead mb-3">
+        <div class="inner">
+          <h3 class="masthead-brand">Race & The City</h3>
+          <nav class="nav nav-masthead justify-content-center">
+            <a class="nav-link " href="/">Home</a>
+            <a class="nav-link active" href="map_initial.html">CO2 Maps</a>
+            <a class="nav-link" href="darte_data.html">DARTE Data</a>
+          </nav>
+        </div>
+      </header>
+  </div>
+
+		</div>
+		<div class="row">
+		<div class="col-1"></div>
+		<div class="col-10" >
+				<h1 class="mt-5" style="color: #301934;">Race & Carbon Maps</h1>
+				<hr>
+				<div class="row">
+					<div class="col-12">
+						<p class="lead">
+						This initial phase used data from the Cool Climate project to map the correlation between demographic factors, particularly race and income, and carbon consumption in thirteen American cities. To use the maps, choose the demographic indicator and carbon use variable. This includes total household carbon  use per year, or is broken out by transport, housing, food, goods and services.  </p>
+					</div>
+				</div>
+				<!--<h4>By County</h4>
+				<h5><a href='ohio.html'>Ohio Counties</a>
+
+				<h5><a href='georgia.html'>Georgia Counties</a>
+
+				<hr>-->
+				<hr>
+				<div class="row" align="center">
+
+					<div class="col-12 justify-content-center ">
+						<h4>City Zipcode Decile Plots</h4>
+						<p class="lead">
+							Once we completed the initial maps we realized that the scatter plots, which show demographics and carbon use for each zip code, were actually the most telling visualization. Thus we created a second series of summary graphs where you can use to compare demographics and carbon footprint across the thirteen cities.  
+						</p>
+						<a class="btn btn-outline-info btn-lg" role="button" href="full_dotplots.html?comp1=0&comp2=3">Summary Graphs</a>
+						<hr>
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+		<div class="row" align="center">
+			<div class="col-1"></div>
+			<div class="col-10">
+				<h4>The City Maps</h4>
+								<div class="row">
+					<div class="col-12">
+					<label class="lead"><b>Select zipcode color axis: </b></label>
+					
+						<select id="area-axis-select" class="form-select form-select-lg mb-3">
+						</select>
+					</div>
+					<div class="col-12">
+					<label class="lead"><b>Select zipcode bar height axis: </b></label>
+					
+						<select id="height-axis-select" class="form-select form-select-lg mb-3">
+						</select>
+
+					</div>
+				</div>
+				<div class="row">
+				<div class="col-3 mb-2">
+				<a id="atlanta" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Atlanta</a>
+				</div><div class="col-3 mb-2">
+				<a id="boston" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Boston</a>
+				</div><div class="col-3 mb-2">
+				<a id="chicago" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Chicago</a>
+				</div><div class="col-3 mb-2">
+				<a id="cincinnati" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Cincinnati</a>
+				</div><div class="col-3 mb-2">
+				<a id="cleveland" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Cleveland</a>
+				</div><div class="col-3 mb-2">
+				<a id="dallas" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Dallas</a>
+				</div><div class="col-3 mb-2">
+				<a id="denver" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Denver</a>
+				</div><div class="col-3 mb-2">
+				<a id="houston" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Houston</a>
+				</div><div class="col-3 mb-2">
+				<a id="los_angeles" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Los Angeles</a>
+				</div><div class="col-3 mb-2">
+				<a id="minneapolis" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Minneapolis</a>
+				</div><div class="col-3 mb-2">
+				<a id="philadelphia" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Philadelphia</a>
+				</div><div class="col-3 mb-2">
+				<a id="portland" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">Portland</a>
+				</div><div class="col-3 mb-2">
+				<a id="st_louis" class="btn btn-outline-dark city" role="button" href="city_deck_map.html?" target="_blank">St. Louis</a>
+				</div>
+				</div>
+				<div class="row">
+					<div class="col-12">
+						<p class="lead">
+							These visualizations are based off of data from the Cool Climate project, which used federal national survey data from the early 2010s to make estimates about household carbon footprints for every zip code in the United States. For an explanation of methodology, see Christopher Jones and Daniel M. Kammen, “Spatial Distribution of U.S. Household Carbon Footprints Reveals Suburbanization Undermines Greenhouse Gas Benefits of Urban Population Density,” Environmental Science & Technology 48, no. 2 (January 21, 2014): 895–902, https://doi.org/10.1021/es4034364. 
+						</p>
+					</div>
+				</div>
+
+				
+				<!--<h4>Combined</h4>
+				<h5><a href='combo-cincinnati.html'>Cincinnati Combo</a>
+
+				<h5><a href='combo-atlanta.html'>Atlanta Combo</a>
+					-->
+			</div>
+		</div>
+
+	</div>
+</div>
+	<script
+  src="https://code.jquery.com/jquery-3.5.1.min.js"
+  integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+  crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="src/d3.v5.js"></script>
+	<script src="index_control.js"></script>
+</body>
+
+
